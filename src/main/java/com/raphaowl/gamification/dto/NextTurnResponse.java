@@ -13,5 +13,6 @@ public class NextTurnResponse {
 
     public int bossHp;
     public int bossMaxHp;
+    public String bossName;
     public String bossImageUrl;
 }

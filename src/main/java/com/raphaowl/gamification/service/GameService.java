@@ -147,6 +147,7 @@ public class GameService {
         res.question = question.getStatement();
         res.bossHp = boss.getCurrentHp();
         res.bossMaxHp = boss.getMaxHp();
+        res.bossName = boss.getName();
 
         GameConfig config = getConfig();
         res.bossImageUrl = config.getBossImageUrl();
@@ -161,7 +162,12 @@ public class GameService {
 
         GameSession session = new GameSession();
 
-        Boss boss = new Boss("Monstro", 100, 100);
+        GameConfig config = getConfig();
+
+        Boss boss = new Boss();
+        boss.setName(config.getBossName());
+        boss.setMaxHp(config.getBossMaxHp());
+        boss.setCurrentHp(config.getBossMaxHp());
 
         session.setBoss(boss);
         session.setFinished(false);

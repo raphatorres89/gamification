@@ -41,4 +41,4 @@ INSERT INTO question (statement, answer)
 VALUES ( 'Quanto é 50-26?', '24');
 
 INSERT INTO game_config (id, xp_on_correct, xp_on_wrong, damage_min, damage_max, damage_on_wrong, boss_name, boss_max_hp, boss_image_url)
-VALUES (1, 10, 0, 5, 15, 0, 'Monstro', 100, 'https://www.dndbeyond.com/avatars/thumbnails/30761/774/1000/1000/638061093283829548.png');
+VALUES (1, 10, 0, 5, 15, 0, 'Jovem Sabka', 100, 'https://i.imgur.com/XDG7OIT.png');
