@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuração do Jogo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1e1e2f;
+            color: white;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #2c2c3e;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-right: 10px;
+        }
+
+        .save {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .secondary {
+            background: #3498db;
+            color: white;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #2ecc71;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1>⚙️ Configuração do Jogo</h1>
+
+        <div class="field">
+            <label for="xpOnCorrect">XP ao acertar</label>
+            <input id="xpOnCorrect" type="number" min="0">
+        </div>
+
+        <div class="field">
+            <label for="xpOnWrong">XP ao errar</label>
+            <input id="xpOnWrong" type="number" min="0">
+        </div>
+
+        <div class="field">
+            <label>Dano mínimo</label>
+            <input id="damageMin" type="number">
+        </div>
+
+        <div class="field">
+            <label>Dano máximo</label>
+            <input id="damageMax" type="number">
+        </div>
+
+        <div class="field">
+            <label for="damageOnWrong">Dano ao errar</label>
+            <input id="damageOnWrong" type="number" min="0">
+        </div>
+
+        <div class="field">
+            <label for="bossName">Nome do boss</label>
+            <input id="bossName" type="text">
+        </div>
+
+        <div class="field">
+            <label for="bossMaxHp">Vida máxima do boss</label>
+            <input id="bossMaxHp" type="number" min="1">
+        </div>
+
+        <div class="field">
+            <label for="bossImageUrl">URL da imagem do boss</label>
+            <input id="bossImageUrl" type="text">
+        </div>
+
+        <div class="actions">
+            <button class="save" onclick="saveConfig()">Salvar</button>
+            <button class="secondary" onclick="loadConfig()">Recarregar</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+</div>
+
+<script>
+    function loadConfig() {
+        fetch("/config")
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Erro ao carregar configuração");
+                }
+                return res.json();
+            })
+            .then(data => {
+                document.getElementById("xpOnCorrect").value = data.xpOnCorrect;
+                document.getElementById("xpOnWrong").value = data.xpOnWrong;
+                document.getElementById("damageMin").value = data.damageMin;
+                document.getElementById("damageMax").value = data.damageMax;
+                document.getElementById("damageOnWrong").value = data.damageOnWrong;
+                document.getElementById("bossName").value = data.bossName;
+                document.getElementById("bossMaxHp").value = data.bossMaxHp;
+                document.getElementById("bossImageUrl").value = data.bossImageUrl;
+                setMessage("");
+            })
+            .catch(err => {
+                console.error(err);
+                setMessage("Erro ao carregar configuração.", "error");
+            });
+    }
+
+    function saveConfig() {
+        const payload = {
+            xpOnCorrect: parseInt(document.getElementById("xpOnCorrect").value || "0", 10),
+            xpOnWrong: parseInt(document.getElementById("xpOnWrong").value || "0", 10),
+            damageMin: parseInt(document.getElementById("damageMin").value || "0", 10),
+            damageMax: parseInt(document.getElementById("damageMax").value || "0", 10),
+            damageOnWrong: parseInt(document.getElementById("damageOnWrong").value || "0", 10),
+            bossName: document.getElementById("bossName").value,
+            bossMaxHp: parseInt(document.getElementById("bossMaxHp").value || "1", 10),
+            bossImageUrl: document.getElementById("bossImageUrl").value
+        };
+
+        fetch("/config", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Erro ao salvar configuração");
+            }
+            return res.json();
+        })
+        .then(() => {
+            setMessage("Configuração salva com sucesso.", "success");
+            loadConfig();
+        })
+        .then(data => {
+            showToast("✅ Configuração salva com sucesso!");
+        })
+        .catch(() => {
+            showToast("❌ Erro ao salvar configuração", true);
+        });
+    }
+
+    function setMessage(text, type) {
+        const el = document.getElementById("message");
+        el.textContent = text;
+        el.className = "message";
+
+        if (type) {
+            el.classList.add(type);
+        }
+    }
+
+    let toastTimeout;
+
+    function showToast(message, isError = false) {
+        let toast = document.getElementById("toast");
+
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "toast";
+            document.body.appendChild(toast);
+        }
+
+        // limpa timeout anterior (IMPORTANTE)
+        clearTimeout(toastTimeout);
+
+        toast.innerText = message;
+        toast.style.background = isError ? "#e74c3c" : "#2ecc71";
+
+        toast.style.opacity = "1";
+        toast.style.transform = "translateY(0)";
+        toast.style.display = "block";
+
+        // tempo maior (4s)
+        toastTimeout = setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateY(20px)";
+
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 300);
+        }, 4000); // 👈 aumenta aqui
+    }
+
+    window.onload = loadConfig;
+</script>
+</body>
+</html>

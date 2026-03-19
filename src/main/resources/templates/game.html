@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1e1e2f;
+            color: white;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #2c2c3e;
+            padding: 30px;
+            border-radius: 15px;
+            width: 500px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .boss {
+            position: relative;
+        }
+
+        .boss img {
+            width: 180px;
+            margin-bottom: 10px;
+        }
+
+        .hp-bar {
+            width: 100%;
+            height: 25px;
+            background: #444;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .hp-fill {
+            height: 100%;
+            background: red;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .question {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .student {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .correct {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .correct:hover {
+            background: #27ae60;
+        }
+
+        .wrong {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .wrong:hover {
+            background: #c0392b;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .damage {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff4d4d;
+            font-size: 28px;
+            font-weight: bold;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -80px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translate(0px, 0px);
+            }
+            25% {
+                transform: translate(5px, 0px);
+            }
+            50% {
+                transform: translate(-5px, 0px);
+            }
+            75% {
+                transform: translate(5px, 0px);
+            }
+            100% {
+                transform: translate(0px, 0px);
+            }
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0, 0, 0, 0.7);
+
+            display: none;
+            justify-content: center;
+            align-items: center;
+
+            z-index: 999;
+        }
+
+        .overlay-content {
+            background: #2c2c3e;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 350px;
+
+            animation: pop 0.3s ease;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .result-panel {
+            position: absolute;
+            bottom: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: 90%;
+            background: #2c2c3e;
+            padding: 15px;
+            border-radius: 10px;
+
+            display: none;
+            text-align: center;
+
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 20px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        #damage-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+
+        <div class="boss">
+            <div id="damage-container"></div>
+
+            <h1 id="bossName">Boss</h1>
+
+            <img src="/images/boss.png" id="bossImg"/>
+
+            <div class="hp-bar">
+                <div class="hp-fill" id="hpBar"></div>
+            </div>
+
+            <div>
+                <span id="bossHp"></span> /
+                <span id="bossMaxHp"></span>
+            </div>
+        </div>
+
+        <hr/>
+
+        <div class="student" id="studentName"></div>
+        <div class="question" id="questionText"></div>
+
+        <button class="correct" onclick="answer(true)">✅ Acerto</button>
+        <button class="wrong" onclick="answer(false)">❌ Erro</button>
+
+        <input type="hidden" id="studentId"/>
+        <input type="hidden" id="questionId"/>
+
+        <div id="result-panel" class="result-panel">
+            <div id="result-box"></div>
+            <button onclick="continueGame()">Continuar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentTurn = null;
+    let questionVisible = false;
+
+    function answer(correct) {
+        if (!questionVisible) return; // 🚫 bloqueia ansiedade kkk
+
+        const studentId = document.getElementById("studentId").value;
+        const questionId = document.getElementById("questionId").value;
+
+        fetch("/answer", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `studentId=${studentId}&questionId=${questionId}&correct=${correct}`
+        })
+            .then(res => res.json())
+            .then(data => {
+                window.lastResult = data;
+
+                updateBoss(data);
+
+                if (data.damage > 0) {
+                    showDamage(data.damage);
+                }
+
+                showResult(data);
+            });
+    }
+
+    function showResult(data) {
+        const box = document.getElementById("result-box");
+        const panel = document.getElementById("result-panel");
+
+        if (data.correct) {
+            box.innerHTML = `
+                <p style="color:#2ecc71;">✅ Acertou!</p>
+                <p><b>Resposta:</b> ${data.correctAnswer}</p>
+                <p>💥 ${data.damage} dano | ⭐ ${data.xpGained} XP</p>
+            `;
+        } else {
+            box.innerHTML = `
+                <p style="color:#e74c3c;">❌ Errou!</p>
+            `;
+        }
+
+        if (data.bossDefeated) {
+            box.innerHTML += `<p>🏆 Boss derrotado!</p>`;
+        }
+
+        panel.style.display = "block";
+    }
+
+    function continueGame() {
+        if (window.lastResult?.bossDefeated) {
+            loadRanking();
+        } else {
+            loadNextTurn();
+        }
+    }
+
+    function loadRanking() {
+        fetch("/ranking")
+            .then(res => res.json())
+            .then(data => {
+                renderRanking(data);
+            });
+    }
+
+    function renderRanking(ranking) {
+        const card = document.querySelector(".card");
+
+        card.innerHTML = `
+        <h2>🏆 Ranking</h2>
+        <div id="ranking-list"></div>
+        <button id="play-again">Jogar novamente</button>
+    `;
+
+        const list = document.getElementById("ranking-list");
+
+        ranking.forEach((player, index) => {
+            list.innerHTML += `
+            <p>
+                ${index + 1}º - ${player.student.name}
+                (${player.experience} XP)
+            </p>
+        `;
+        });
+
+        document.getElementById("play-again")
+            .addEventListener("click", startGame);
+    }
+
+    function updateBoss(data) {
+        const percent = (data.bossHp * 100) / data.bossMaxHp;
+
+        document.getElementById("hpBar").style.width = percent + "%";
+        document.getElementById("bossHp").innerText = data.bossHp;
+
+        if (data.damage > 0) {
+            const bossImg = document.getElementById("bossImg");
+
+            bossImg.classList.remove("shake");
+            void bossImg.offsetWidth;
+            bossImg.classList.add("shake");
+        }
+    }
+
+    function showDamage(damage) {
+        const container = document.getElementById("damage-container");
+
+        const el = document.createElement("div");
+        el.className = "damage";
+        el.innerText = "-" + damage;
+
+        container.appendChild(el);
+
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function loadNextTurn() {
+        fetch("/next")
+            .then(res => res.json())
+            .then(data => {
+                applyTurn(data);
+            });
+    }
+
+    function applyTurn(data) {
+        currentTurn = data;
+        questionVisible = false;
+
+        // aluno
+        document.getElementById("studentName").innerText = data.studentName;
+        document.getElementById("studentId").value = data.studentId;
+        document.getElementById("studentName").style.color = data.studentColor;
+        document.getElementById("studentName").style.textShadow = `0 0 10px ${data.studentColor}`;
+
+        // pergunta escondida
+        document.getElementById("questionText").innerText = "🤔 Preparando pergunta...";
+        document.getElementById("questionId").value = data.questionId;
+
+        // boss
+        document.getElementById("bossHp").innerText = data.bossHp;
+        document.getElementById("bossMaxHp").innerText = data.bossMaxHp;
+
+        const img = document.getElementById("bossImg");
+
+        // fallback se quebrar a imagem
+        img.onerror = () => {
+            img.src = "/images/default-boss.png";
+        };
+
+        // seta imagem do config
+        img.src = data.bossImageUrl;
+
+        const percent = (data.bossHp * 100) / data.bossMaxHp;
+        document.getElementById("hpBar").style.width = percent + "%";
+
+        // 👇 mostra botão de revelar
+        showRevealButton();
+
+        // esconde botões de resposta
+        toggleAnswerButtons(false);
+
+        document.getElementById("rerollBtn").style.display = "inline-block";
+        document.getElementById("result-panel").style.display = "none";
+    }
+
+    function showRevealButton() {
+        let btn = document.getElementById("revealBtn");
+
+        if (!btn) {
+            btn = document.createElement("button");
+            btn.id = "revealBtn";
+            btn.innerText = "👀 Mostrar pergunta";
+            btn.onclick = revealQuestion;
+
+            document.querySelector(".card").appendChild(btn);
+        }
+
+        btn.style.display = "inline-block";
+    }
+
+    function revealQuestion() {
+        if (!currentTurn) return;
+
+        document.getElementById("questionText").innerText = currentTurn.question;
+
+        questionVisible = true;
+
+        document.getElementById("revealBtn").style.display = "none";
+        document.getElementById("rerollBtn").style.display = "none"; // 👈 ESSENCIAL
+
+        toggleAnswerButtons(true);
+    }
+
+    function toggleAnswerButtons(show) {
+        document.querySelector(".correct").style.display = show ? "inline-block" : "none";
+        document.querySelector(".wrong").style.display = show ? "inline-block" : "none";
+    }
+
+    function startGame() {
+        fetch("/start")
+            .then(res => res.json())
+            .then(data => {
+                renderGameLayout();
+                applyTurn(data);
+            });
+    }
+
+    function renderGameLayout() {
+        const card = document.querySelector(".card");
+
+        card.innerHTML = `
+        <div class="boss">
+            <div id="damage-container"></div>
+
+            <h1 id="bossName">Boss</h1>
+
+            <img src="/images/boss.png" id="bossImg"/>
+
+            <div class="hp-bar">
+                <div class="hp-fill" id="hpBar"></div>
+            </div>
+
+            <div>
+                <span id="bossHp"></span> /
+                <span id="bossMaxHp"></span>
+            </div>
+        </div>
+
+        <hr/>
+
+        <div class="student" id="studentName"></div>
+        <div class="question" id="questionText"></div>
+
+        <button id="revealBtn">👀 Mostrar pergunta</button>
+        <button id="rerollBtn">🔄 Sortear outro aluno</button>
+
+        <br/>
+
+        <button class="correct">✅ Acerto</button>
+        <button class="wrong">❌ Erro</button>
+
+        <input type="hidden" id="studentId"/>
+        <input type="hidden" id="questionId"/>
+
+        <div id="result-panel" class="result-panel">
+            <div id="result-box"></div>
+            <button id="continueBtn">Continuar</button>
+        </div>
+    `;
+
+        // eventos
+        document.getElementById("revealBtn").onclick = revealQuestion;
+        document.getElementById("rerollBtn").onclick = rerollStudent;
+
+        document.querySelector(".correct").onclick = () => answer(true);
+        document.querySelector(".wrong").onclick = () => answer(false);
+
+        document.getElementById("continueBtn").onclick = continueGame;
+    }
+
+    function rerollStudent() {
+        if (questionVisible) return; // 🚫 bloqueia depois de revelar
+
+        fetch("/next")
+            .then(res => res.json())
+            .then(data => {
+                applyTurn(data);
+            });
+    }
+
+    window.onload = () => {
+        startGame();
+    };
+</script>
+
+</body>
+</html>
