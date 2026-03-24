@@ -8,6 +8,9 @@
             background: #1e1e2f;
             color: white;
             margin: 0;
+        }
+
+        .page-content {
             padding: 30px;
         }
 
@@ -75,14 +78,6 @@
             font-size: 14px;
         }
 
-        .success {
-            color: #2ecc71;
-        }
-
-        .error {
-            color: #e74c3c;
-        }
-
         #toast {
             position: fixed;
             bottom: 30px;
@@ -104,59 +99,110 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .topbar {
+            height: 64px;
+            background: #151522;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar-brand {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .topbar-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .topbar-links a {
+            color: white;
+            text-decoration: none;
+            background: #2c2c3e;
+            padding: 10px 14px;
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .topbar-links a:hover {
+            background: #3b3b52;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="card">
-        <h1>⚙️ Configuração do Jogo</h1>
 
-        <div class="field">
-            <label for="xpOnCorrect">XP ao acertar</label>
-            <input id="xpOnCorrect" type="number" min="0">
+<nav class="topbar">
+    <div class="topbar-brand">🎮 Gamification</div>
+
+    <div class="topbar-links">
+        <a href="/">Jogo</a>
+        <a href="/admin/questions">Perguntas</a>
+        <a href="/admin/config">Configuração</a>
+    </div>
+</nav>
+
+<div class="page-content">
+
+    <div class="container">
+        <div class="card">
+            <h1>⚙️ Configuração do Jogo</h1>
+
+            <div class="field">
+                <label for="xpOnCorrect">XP ao acertar</label>
+                <input id="xpOnCorrect" type="number" min="0">
+            </div>
+
+            <div class="field">
+                <label for="xpOnWrong">XP ao errar</label>
+                <input id="xpOnWrong" type="number" min="0">
+            </div>
+
+            <div class="field">
+                <label>Dano mínimo</label>
+                <input id="damageMin" type="number">
+            </div>
+
+            <div class="field">
+                <label>Dano máximo</label>
+                <input id="damageMax" type="number">
+            </div>
+
+            <div class="field">
+                <label for="damageOnWrong">Dano ao errar</label>
+                <input id="damageOnWrong" type="number" min="0">
+            </div>
+
+            <div class="field">
+                <label for="bossName">Nome do boss</label>
+                <input id="bossName" type="text">
+            </div>
+
+            <div class="field">
+                <label for="bossMaxHp">Vida máxima do boss</label>
+                <input id="bossMaxHp" type="number" min="1">
+            </div>
+
+            <div class="field">
+                <label for="bossImageUrl">URL da imagem do boss</label>
+                <input id="bossImageUrl" type="text">
+            </div>
+
+            <div class="actions">
+                <button class="save" onclick="saveConfig()">Salvar</button>
+                <button class="secondary" onclick="loadConfig()">Recarregar</button>
+            </div>
+
+            <div id="message" class="message"></div>
         </div>
-
-        <div class="field">
-            <label for="xpOnWrong">XP ao errar</label>
-            <input id="xpOnWrong" type="number" min="0">
-        </div>
-
-        <div class="field">
-            <label>Dano mínimo</label>
-            <input id="damageMin" type="number">
-        </div>
-
-        <div class="field">
-            <label>Dano máximo</label>
-            <input id="damageMax" type="number">
-        </div>
-
-        <div class="field">
-            <label for="damageOnWrong">Dano ao errar</label>
-            <input id="damageOnWrong" type="number" min="0">
-        </div>
-
-        <div class="field">
-            <label for="bossName">Nome do boss</label>
-            <input id="bossName" type="text">
-        </div>
-
-        <div class="field">
-            <label for="bossMaxHp">Vida máxima do boss</label>
-            <input id="bossMaxHp" type="number" min="1">
-        </div>
-
-        <div class="field">
-            <label for="bossImageUrl">URL da imagem do boss</label>
-            <input id="bossImageUrl" type="text">
-        </div>
-
-        <div class="actions">
-            <button class="save" onclick="saveConfig()">Salvar</button>
-            <button class="secondary" onclick="loadConfig()">Recarregar</button>
-        </div>
-
-        <div id="message" class="message"></div>
     </div>
 </div>
 

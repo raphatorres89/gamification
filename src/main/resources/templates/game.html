@@ -14,7 +14,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: calc(100vh - 64px);
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .card {
@@ -209,9 +211,56 @@
             left: 50%;
             transform: translateX(-50%);
         }
+
+        .topbar {
+            height: 64px;
+            background: #151522;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topbar-brand {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .topbar-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .topbar-links a {
+            color: white;
+            text-decoration: none;
+            background: #2c2c3e;
+            padding: 10px 14px;
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .topbar-links a:hover {
+            background: #3b3b52;
+        }
     </style>
 </head>
 <body>
+
+<nav class="topbar">
+    <div class="topbar-brand">🎮 Gamification</div>
+
+    <div class="topbar-links">
+        <a href="/">Jogo</a>
+        <a href="/admin/questions">Perguntas</a>
+        <a href="/admin/config">Configuração</a>
+    </div>
+</nav>
 
 <div class="container">
     <div class="card">
