@@ -1,24 +1,16 @@
 package com.raphaowl.gamification.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
-@Entity
+@Document(collection = "game_sessions")
 @Data
 public class GameSession {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @OneToOne(cascade = CascadeType.ALL)
+    private String id;
     private Boss boss;
-
     private boolean finished;
 }

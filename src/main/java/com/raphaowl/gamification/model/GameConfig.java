@@ -1,16 +1,16 @@
 package com.raphaowl.gamification.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
-@Entity
+@Document(collection = "game_config")
 @Data
 public class GameConfig {
 
     @Id
-    private Long id = 1L;
+    private String id = "default";
 
     private int xpOnCorrect;
     private int xpOnWrong;

@@ -34,7 +34,7 @@ public class GameService {
     private final GameConfigRepository configRepo;
     private final BossRepository bossRepo;
 
-    private Long lastStudentId;
+    private String lastStudentId;
 
     public Student getRandomStudent() {
         List<Student> students = studentRepo.findAll();
@@ -88,13 +88,13 @@ public class GameService {
                 .toList();
     }
 
-    public AnswerResult processAnswer(Long studentId, Long questionId, boolean correct) {
+    public AnswerResult processAnswer(String studentId, String questionId, boolean correct) {
 
         GameSession session = getActiveSession().get();
 
         Student student = studentRepo.findById(studentId).orElseThrow();
         Question question = questionRepo.findById(questionId).orElseThrow();
-        GameConfig config = configRepo.findById(1L).orElseThrow();
+        GameConfig config = configRepo.findById("default").orElseThrow();
 
         int xp = correct ? config.getXpOnCorrect() : config.getXpOnWrong();
         int damage;
@@ -178,11 +178,11 @@ public class GameService {
     }
 
     public GameConfig getConfig() {
-        return configRepo.findById(1L).orElseThrow();
+        return configRepo.findById("default").orElseThrow();
     }
 
     public GameConfig updateConfig(GameConfig request) {
-        GameConfig config = configRepo.findById(1L).orElseThrow();
+        GameConfig config = configRepo.findById("default").orElseThrow();
 
         config.setXpOnCorrect(request.getXpOnCorrect());
         config.setXpOnWrong(request.getXpOnWrong());

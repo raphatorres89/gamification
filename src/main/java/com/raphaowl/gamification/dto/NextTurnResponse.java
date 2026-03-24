@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class NextTurnResponse {
-    public Long studentId;
+    public String studentId;
     public String studentName;
     public String studentColor;
 
-    public Long questionId;
+    public String questionId;
     public String question;
 
     public int bossHp;

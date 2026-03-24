@@ -36,7 +36,7 @@ public class QuestionController {
 
     @PutMapping("/{id}")
     @ResponseBody
-    public Question update(@PathVariable Long id, @RequestBody Question q) {
+    public Question update(@PathVariable String id, @RequestBody Question q) {
 
         Question existing = questionRepo.findById(id).orElseThrow();
 
@@ -48,7 +48,7 @@ public class QuestionController {
 
     @DeleteMapping("/{id}")
     @ResponseBody
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable String id) {
         questionRepo.deleteById(id);
     }
 }

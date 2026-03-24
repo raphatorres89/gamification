@@ -38,8 +38,8 @@ public class GameController {
 
     @PostMapping("/answer")
     @ResponseBody
-    public AnswerResult answer(@RequestParam Long studentId,
-            @RequestParam Long questionId,
+    public AnswerResult answer(@RequestParam String studentId,
+            @RequestParam String questionId,
             @RequestParam boolean correct) {
 
         return service.processAnswer(studentId, questionId, correct);

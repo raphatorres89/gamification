@@ -58,6 +58,10 @@
             border-radius: 10px;
             margin-bottom: 10px;
         }
+
+        .question div {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -145,6 +149,8 @@
                     const answer = document.createElement("p");
                     answer.textContent = `Resposta: ${q.answer}`;
 
+                    const actions = document.createElement("div");
+
                     const editBtn = document.createElement("button");
                     editBtn.className = "edit";
                     editBtn.textContent = "✏️ Editar";
@@ -152,9 +158,19 @@
                         editQuestion(q.id, q.statement, q.answer);
                     });
 
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.className = "delete";
+                    deleteBtn.textContent = "🗑️ Excluir";
+                    deleteBtn.addEventListener("click", () => {
+                        deleteQuestion(q.id, q.statement);
+                    });
+
+                    actions.appendChild(editBtn);
+                    actions.appendChild(deleteBtn);
+
                     wrapper.appendChild(title);
                     wrapper.appendChild(answer);
-                    wrapper.appendChild(editBtn);
+                    wrapper.appendChild(actions);
 
                     list.appendChild(wrapper);
                 });
@@ -170,6 +186,35 @@
         document.getElementById("statement").value = statement;
         document.getElementById("answer").value = answer;
         editing = true;
+    }
+
+    function deleteQuestion(id, statement) {
+        const confirmed = confirm(`Deseja excluir a pergunta:\n\n"${statement}"?`);
+
+        if (!confirmed) {
+            return;
+        }
+
+        fetch(`/questions/${id}`, {
+            method: "DELETE"
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Erro ao excluir pergunta");
+                }
+
+                // se estiver editando a mesma pergunta, limpa o formulário
+                const currentId = document.getElementById("questionId").value;
+                if (currentId && currentId == id) {
+                    clearForm();
+                }
+
+                loadQuestions();
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Não foi possível excluir a pergunta.");
+            });
     }
 
     function escapeHtml(text) {

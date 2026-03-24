@@ -1,25 +1,17 @@
 package com.raphaowl.gamification.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
 
-@Entity
+@Document(collection = "student_progress")
 @Data
 public class StudentProgress {
 
     @Id
-    @GeneratedValue
-    private Long id;
-
-    @ManyToOne
+    private String id;
     private Student student;
-
-    @ManyToOne
     private GameSession session;
-
     private int experience;
 }
